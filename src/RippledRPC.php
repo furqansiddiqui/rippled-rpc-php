@@ -80,6 +80,16 @@ class RippledRPC
         return $this->sslConfig;
     }
 
+    public function ping(): bool
+    {
+
+    }
+
+    public function walletPropose(string $keyType = "secp256k1")
+    {
+
+    }
+
     /**
      * @param string $httpMethod
      * @param string $command
@@ -92,7 +102,7 @@ class RippledRPC
      * @throws \HttpClient\Exception\RequestException
      * @throws \HttpClient\Exception\ResponseException
      */
-    private function request(string $httpMethod, string $command, ?array $params = null, bool $exceptionOnFail = true): APIQueryResult
+    public function request(string $httpMethod, string $command, ?array $params = null, bool $exceptionOnFail = true): APIQueryResult
     {
         $url = sprintf('%s://%s:%d', $this->https ? "https" : "http", $this->host, $this->port);
         $req = new Request($httpMethod, $url);
