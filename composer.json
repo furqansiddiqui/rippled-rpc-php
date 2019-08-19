@@ -1,0 +1,19 @@
+{
+  "name": "furqansiddiqui/rippled-rpc-php",
+  "type": "library",
+  "description": "Rippled RPC client for PHP Apps",
+  "license": "MIT",
+  "require": {
+    "php-64bit": ">=7.2.0",
+    "ext-bcmath": "*",
+    "furqansiddiqui/http-client": "^0.4.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "FurqanSiddiqui\\Rippled\\": [
+        "src"
+      ]
+    }
+  },
+  "minimum-stability": "dev"
+}
