@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Rippled;
 
+use Comely\Utils\OOP\OOP;
 use FurqanSiddiqui\Rippled\RPC\AccountInfo;
 use FurqanSiddiqui\Rippled\RPC\RippledAmountObj;
 
@@ -85,8 +86,13 @@ class Account
 
         unset($result["account_data"]);
         $resultAccData = array_merge($resultAccData, $result);
+        $caseAccData = [];
+        foreach ($resultAccData as $key => $value) {
+            $caseAccData[OOP::camelCase($key)] = $value;
+        }
+
         $accInfoObj = new AccountInfo();
-        $accInfoObj->mapResultToObject($resultAccData);
+        $accInfoObj->mapResultToObject($caseAccData);
         /** @var string $balance */
         $balance = $accInfoObj->balance;
         $accInfoObj->balance = new RippledAmountObj($balance);

@@ -61,7 +61,7 @@ class AccountInfo extends AbstractResultModel
         });
 
         $objectMapper->prop("balance")->dataTypes("string")->validate(function ($value) {
-            return Validator::Numeric($value)->scale(0)->validate();
+            return Validator::Numeric($value)->scale(0)->validate()->value();
         });
 
         $objectMapper->prop("flags")->dataTypes("integer");

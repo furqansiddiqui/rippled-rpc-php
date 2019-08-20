@@ -33,18 +33,19 @@ class RippledAmountObj
     /**
      * RippledAmountObj constructor.
      * @param string $amount
+     * @param int|null $scale
      */
-    public function __construct(string $amount)
+    public function __construct(string $amount, int $scale = Validator::DEC_SCALE)
     {
-        $this->scale = Validator::DEC_SCALE;
+        $this->scale = $scale;
 
         $amount = new BcNumber($amount);
-        if (!$amount->isInteger()) {
-            $this->drops = $amount;
-            $this->xrp = bcdiv($amount->value(), bcpow("10", strval($this->scale), 0), 0);
-        } else {
+        if (!$amount->isInteger()) {;
             $this->xrp = $amount->value();
             $this->drops = $amount->mulPow(10, $this->scale, 6)->value();
+        } else {
+            $this->drops = $amount;
+            $this->xrp = bcdiv($amount->value(), bcpow("10", strval($this->scale), 0), 0);
         }
     }
 }
