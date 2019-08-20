@@ -169,7 +169,7 @@ class RippledRPC
     {
         $req = $this->request("wallet_propose", $params);
         $proposedWallet = new WalletPropose();
-        $proposedWallet->mapResultToObject($req->result());
+        $proposedWallet->mapResultToObject($req->result()->array());
         $proposedWallet->masterSeedHex = new Base16($proposedWallet->masterSeedHex);
         $proposedWallet->publicKeyHex = new Base16($proposedWallet->publicKeyHex);
 

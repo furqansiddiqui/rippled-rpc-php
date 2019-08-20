@@ -76,9 +76,17 @@ class Account
             }
         }
 
-        $accInfo = $this->rippledRPC->request("account_info", $params);
+        $req = $this->rippledRPC->request("account_info", $params);
+        $result = $req->result()->array();
+        $resultAccData = $result["account_data"] ?? null;
+        if (!is_array($resultAccData)) {
+            throw new \UnexpectedValueException('Object "account_data" not found in result');
+        }
+
+        unset($result["account_data"]);
+        $resultAccData = array_merge($resultAccData, $result);
         $accInfoObj = new AccountInfo();
-        $accInfoObj->mapResultToObject($accInfo->result());
+        $accInfoObj->mapResultToObject($resultAccData);
         /** @var string $balance */
         $balance = $accInfoObj->balance;
         $accInfoObj->balance = new RippledAmountObj($balance);
