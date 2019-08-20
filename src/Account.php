@@ -28,30 +28,33 @@ class Account
     private $rippledRPC;
     /** @var string */
     private $accountId;
+    /** @var bool */
+    private $strict;
 
     /**
      * Account constructor.
      * @param RippledRPC $rippledRPC
      * @param string $accountId
+     * @param bool $strict
      */
-    public function __construct(RippledRPC $rippledRPC, string $accountId)
+    public function __construct(RippledRPC $rippledRPC, string $accountId, bool $strict = true)
     {
         $this->rippledRPC = $rippledRPC;
         $this->accountId = $accountId;
+        $this->strict = $strict;
     }
 
     /**
-     * @param bool $strict
      * @param string|null $ledger
      * @return AccountInfo
      * @throws Exception\APIQueryException
      * @throws Exception\ResponseParseException
      */
-    public function info(bool $strict = true, ?string $ledger = "validated"): AccountInfo
+    public function info(?string $ledger = "validated"): AccountInfo
     {
         $params = [
             "account" => $this->accountId,
-            "strict" => $strict,
+            "strict" => $this->strict,
         ];
 
         if ($ledger) {

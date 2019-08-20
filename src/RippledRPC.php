@@ -18,6 +18,7 @@ use Comely\DataTypes\Buffer\Base16;
 use FurqanSiddiqui\Rippled\Exception\APIQueryException;
 use FurqanSiddiqui\Rippled\Exception\ConnectionException;
 use FurqanSiddiqui\Rippled\Exception\ResponseParseException;
+use FurqanSiddiqui\Rippled\RPC\Transaction;
 use FurqanSiddiqui\Rippled\RPC\WalletPropose;
 use FurqanSiddiqui\Rippled\Server\APIQueryResult;
 use FurqanSiddiqui\Rippled\Server\Result;
@@ -110,14 +111,15 @@ class RippledRPC
 
     /**
      * @param string $accountId
+     * @param bool $strict
      * @return Account
      */
-    public function account(string $accountId): Account
+    public function account(string $accountId, bool $strict = true): Account
     {
-        return new Account($this, $accountId);
+        return new Account($this, $accountId, $strict);
     }
 
-    public function transaction(Base16 $txId)
+    public function transaction(Base16 $txId): Transaction
     {
 
     }
