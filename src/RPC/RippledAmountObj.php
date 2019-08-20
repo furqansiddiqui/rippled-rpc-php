@@ -41,7 +41,6 @@ class RippledAmountObj
 
         $amount = new BcNumber($amount);
         if (!$amount->isInteger()) {
-            ;
             $this->xrp = $amount->value();
             $this->drops = $amount->mulPow(10, $this->scale, 6)->value();
         } else {
