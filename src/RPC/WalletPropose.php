@@ -32,13 +32,16 @@ class WalletPropose extends AbstractResultModel
     public $masterKey;
     /** @var string */
     public $masterSeed;
-    /** @var string */
+    /** @var Base16 */
     public $masterSeedHex;
     /** @var string */
     public $publicKey;
-    /** @var string */
+    /** @var Base16 */
     public $publicKeyHex;
 
+    /**
+     * @param ObjectMapper $objectMapper
+     */
     public function objectMapperProps(ObjectMapper $objectMapper): void
     {
         $objectMapper->prop("accountId")->dataTypes("string")->validate(function ($value) {
@@ -58,9 +61,10 @@ class WalletPropose extends AbstractResultModel
             return Validator::String($value)->match('/^[a-f0-9]{2,}$/i')->validate();
         });
 
-        $this->masterSeedHex = new Base16($this->masterSeedHex);
-
         $objectMapper->prop("publicKey")->dataTypes("string");
-        $objectMapper->prop("publicKeyHex")->dataTypes("string");
+
+        $objectMapper->prop("publicKeyHex")->dataTypes("string")->validate(function ($value) {
+            return Validator::String($value)->match('/^[a-f0-9]{2,}$/i')->validate();
+        });
     }
 }
