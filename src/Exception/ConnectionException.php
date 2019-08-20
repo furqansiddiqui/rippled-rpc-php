@@ -15,9 +15,9 @@ declare(strict_types=1);
 namespace FurqanSiddiqui\Rippled\Exception;
 
 /**
- * Class ResponseParseException
+ * Class ConnectionException
  * @package FurqanSiddiqui\Rippled\Exception
  */
-class ResponseParseException extends APIQueryException
+class ConnectionException extends APIQueryException
 {
 }

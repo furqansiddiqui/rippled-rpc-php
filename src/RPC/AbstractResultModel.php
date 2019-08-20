@@ -12,12 +12,14 @@
 
 declare(strict_types=1);
 
-namespace FurqanSiddiqui\Rippled\Exception;
+namespace FurqanSiddiqui\Rippled\RPC;
+
+use Comely\Utils\OOP\ObjectMapper\ObjectMapperInterface;
 
 /**
- * Class ResponseParseException
- * @package FurqanSiddiqui\Rippled\Exception
+ * Class AbstractResultModel
+ * @package FurqanSiddiqui\Rippled\RPC
  */
-class ResponseParseException extends APIQueryException
+abstract class AbstractResultModel implements ObjectMapperInterface
 {
 }

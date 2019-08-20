@@ -14,11 +14,17 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Rippled;
 
+use Comely\DataTypes\Buffer\Base16;
+use Comely\Utils\OOP\ObjectMapper;
+use Comely\Utils\OOP\ObjectMapper\ObjectMapperInterface;
 use FurqanSiddiqui\Rippled\Exception\APIQueryException;
+use FurqanSiddiqui\Rippled\Exception\ConnectionException;
 use FurqanSiddiqui\Rippled\Exception\ResponseParseException;
+use FurqanSiddiqui\Rippled\RPC\WalletPropose;
 use FurqanSiddiqui\Rippled\Server\APIQueryResult;
 use FurqanSiddiqui\Rippled\Server\Result;
 use FurqanSiddiqui\Rippled\Server\SSL;
+use HttpClient\Exception\HttpClientException;
 use HttpClient\Request;
 use HttpClient\Response\JSONResponse;
 use HttpClient\Response\Response;
@@ -80,42 +86,92 @@ class RippledRPC
         return $this->sslConfig;
     }
 
+    /**
+     * @return bool
+     * @throws APIQueryException
+     */
     public function ping(): bool
     {
+        $req = $this->request("ping", ["ping" => 1]);
+        if (!$req->result() || !$req->result()->isSuccess()) {
+            return false;
+        }
 
-    }
-
-    public function walletPropose(string $keyType = "secp256k1")
-    {
-
+        return true;
     }
 
     /**
-     * @param string $httpMethod
-     * @param string $command
-     * @param array|null $params
-     * @param bool $exceptionOnFail
-     * @return APIQueryResult
+     * @param string $keyType
+     * @param Base16|null $seed
+     * @return WalletPropose
      * @throws APIQueryException
      * @throws ResponseParseException
-     * @throws \HttpClient\Exception\HttpClientException
-     * @throws \HttpClient\Exception\RequestException
-     * @throws \HttpClient\Exception\ResponseException
      */
-    public function request(string $httpMethod, string $command, ?array $params = null, bool $exceptionOnFail = true): APIQueryResult
+    public function walletPropose(string $keyType = "secp256k1", ?Base16 $seed = null): WalletPropose
     {
-        $url = sprintf('%s://%s:%d', $this->https ? "https" : "http", $this->host, $this->port);
-        $req = new Request($httpMethod, $url);
-        $req->json(true, false);
-        $req->payload([
-            "method" => $command,
-            "params" => [
-                $params ?? []
-            ]
-        ], true);
+        if (!in_array($keyType, Validator::KEY_TYPES)) {
+            throw new \OutOfBoundsException('Invalid key type');
+        }
 
-        /** @var Response|JSONResponse $res */
-        $res = $req->send();
+        $params = [
+            "key_type" => $keyType
+        ];
+
+        if ($seed) {
+            $params["seed"] = $seed->hexits(false);
+        }
+
+        $req = $this->request("wallet_propose", $params);
+        $proposedWallet = new WalletPropose();
+        $this->mapResultToObject($req->result(), $proposedWallet);
+        return $proposedWallet;
+    }
+
+    /**
+     * @param Result $res
+     * @param ObjectMapperInterface $obj
+     * @return ObjectMapperInterface
+     * @throws ResponseParseException
+     */
+    private function mapResultToObject(Result $res, ObjectMapperInterface $obj): ObjectMapperInterface
+    {
+        try {
+            $objectMapper = new ObjectMapper($obj);
+            return $objectMapper->mapCaseConversion(true)
+                ->map($res->array());
+        } catch (\Exception $e) {
+            throw new ResponseParseException(sprintf('[%s][%s] %s', get_class($e), $e->getCode(), $e->getMessage()));
+        }
+    }
+
+    /**
+     * @param string $command
+     * @param array|null $params
+     * @param bool $requireResultObj
+     * @param bool $exceptionOnFail
+     * @param string $httpMethod
+     * @return APIQueryResult
+     * @throws APIQueryException
+     */
+    public function request(string $command, ?array $params = null, bool $requireResultObj = true, bool $exceptionOnFail = true, string $httpMethod = 'POST'): APIQueryResult
+    {
+        try {
+            $url = sprintf('%s://%s:%d', $this->https ? "https" : "http", $this->host, $this->port);
+            $req = new Request($httpMethod, $url);
+            $req->json(true, false);
+            $req->payload([
+                "method" => $command,
+                "params" => [
+                    $params ?? []
+                ]
+            ], true);
+
+            /** @var Response|JSONResponse $res */
+            $res = $req->send();
+        } catch (HttpClientException $e) {
+            throw new ConnectionException(sprintf('[%s][%s] %s', get_class($e), $e->getCode(), $e->getMessage()));
+        }
+
         if (!$res instanceof JSONResponse) {
             try {
                 $message = $res->body();
@@ -155,6 +211,10 @@ class RippledRPC
                     throw new APIQueryException(sprintf('API command "%s" status "error"', $command));
                 }
             }
+        }
+
+        if (!isset($apiResult) && $requireResultObj) {
+            throw new APIQueryException(sprintf('API command "%s" no result object', $command));
         }
 
         return $apiQueryResult;

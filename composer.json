@@ -6,7 +6,8 @@
   "require": {
     "php-64bit": ">=7.2.0",
     "ext-bcmath": "*",
-    "furqansiddiqui/http-client": "^0.4.4"
+    "furqansiddiqui/http-client": "^0.4.4",
+    "comely-io/utils": "^1.0.1"
   },
   "autoload": {
     "psr-4": {

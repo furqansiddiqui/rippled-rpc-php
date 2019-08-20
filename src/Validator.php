@@ -12,12 +12,14 @@
 
 declare(strict_types=1);
 
-namespace FurqanSiddiqui\Rippled\Exception;
+namespace FurqanSiddiqui\Rippled;
 
 /**
- * Class ResponseParseException
- * @package FurqanSiddiqui\Rippled\Exception
+ * Class Validator
+ * @package FurqanSiddiqui\Rippled
  */
-class ResponseParseException extends APIQueryException
+class Validator
 {
+    public const MATCH_ACCOUNT_ID = '/^r[a-z0-9]{24,34}$/i';
+    public const KEY_TYPES = ['secp256k1', 'ed25519'];
 }
