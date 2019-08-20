@@ -40,12 +40,13 @@ class RippledAmountObj
         $this->scale = $scale;
 
         $amount = new BcNumber($amount);
-        if (!$amount->isInteger()) {;
+        if (!$amount->isInteger()) {
+            ;
             $this->xrp = $amount->value();
             $this->drops = $amount->mulPow(10, $this->scale, 6)->value();
         } else {
-            $this->drops = $amount;
-            $this->xrp = bcdiv($amount->value(), bcpow("10", strval($this->scale), 0), 0);
+            $this->drops = $amount->value();
+            $this->xrp = bcdiv($amount->value(), bcpow("10", strval($this->scale), 0), $this->scale);
         }
     }
 }
