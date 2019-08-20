@@ -117,6 +117,11 @@ class RippledRPC
         return new Account($this, $accountId);
     }
 
+    public function transaction(Base16 $txId)
+    {
+
+    }
+
     /**
      * @param Base16|null $seed
      * @param string $keyType
@@ -237,7 +242,8 @@ class RippledRPC
                     $errorMessage = $apiResult->error();
                     if ($errorMessage) {
                         throw new APIQueryException(
-                            sprintf('API command "%s" status "error"; %s', $command, $errorMessage)
+                            sprintf('API command "%s" status "error"; %s', $command, $errorMessage),
+                            APIQueryException::SIGNALS[$errorMessage] ?? null
                         );
                     }
 

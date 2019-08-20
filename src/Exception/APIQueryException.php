@@ -20,4 +20,11 @@ namespace FurqanSiddiqui\Rippled\Exception;
  */
 class APIQueryException extends RippledRPCException
 {
+    public const ACCOUNT_NOT_FOUND = 0x2af8;
+    public const TRANSACTION_NOT_FOUND = 0x2ee0;
+
+    public const SIGNALS = [
+        "actNotFound" => self::ACCOUNT_NOT_FOUND,
+        "txnNotFound" => self::TRANSACTION_NOT_FOUND,
+    ];
 }
