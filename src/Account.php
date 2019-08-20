@@ -47,7 +47,7 @@ class Account
      * @throws Exception\APIQueryException
      * @throws Exception\ResponseParseException
      */
-    public function info(bool $strict = true, ?string $ledger = "validated")
+    public function info(bool $strict = true, ?string $ledger = "validated"): AccountInfo
     {
         $params = [
             "account" => $this->accountId,
