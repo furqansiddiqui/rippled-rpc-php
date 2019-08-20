@@ -119,7 +119,7 @@ class RippledRPC
         ];
 
         if ($seed) {
-            $params["seed"] = $seed->hexits(false);
+            $params["seed_hex"] = $seed->hexits(false);
         }
 
         $req = $this->request("wallet_propose", $params);
