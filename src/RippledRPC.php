@@ -102,13 +102,12 @@ class RippledRPC
     }
 
     /**
-     * @param string $keyType
      * @param Base16|null $seed
+     * @param string $keyType
      * @return WalletPropose
      * @throws APIQueryException
-     * @throws ResponseParseException
      */
-    public function walletPropose(string $keyType = "secp256k1", ?Base16 $seed = null): WalletPropose
+    public function walletPropose(?Base16 $seed = null, string $keyType = "secp256k1"): WalletPropose
     {
         if (!in_array($keyType, Validator::KEY_TYPES)) {
             throw new \OutOfBoundsException('Invalid key type');
@@ -122,11 +121,42 @@ class RippledRPC
             $params["seed_hex"] = $seed->hexits(false);
         }
 
+        return $this->_walletPropose($params);
+    }
+
+    /**
+     * @param string $passphrase
+     * @param string $keyType
+     * @return WalletPropose
+     * @throws APIQueryException
+     */
+    public function walletProposeWithPassphrase(string $passphrase, string $keyType = "secp256k1"): WalletPropose
+    {
+        if (!in_array($keyType, Validator::KEY_TYPES)) {
+            throw new \OutOfBoundsException('Invalid key type');
+        }
+
+        $params = [
+            "key_type" => $keyType,
+            "passphrase" => $passphrase
+        ];
+
+        return $this->_walletPropose($params);
+    }
+
+    /**
+     * @param array $params
+     * @return WalletPropose
+     * @throws APIQueryException
+     */
+    private function _walletPropose(array $params): WalletPropose
+    {
         $req = $this->request("wallet_propose", $params);
         $proposedWallet = new WalletPropose();
         $this->mapResultToObject($req->result(), $proposedWallet);
         $proposedWallet->masterSeedHex = new Base16($proposedWallet->masterSeedHex);
         $proposedWallet->publicKeyHex = new Base16($proposedWallet->publicKeyHex);
+
         return $proposedWallet;
     }
 
