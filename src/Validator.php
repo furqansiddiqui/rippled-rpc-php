@@ -20,7 +20,10 @@ namespace FurqanSiddiqui\Rippled;
  */
 class Validator
 {
+    public const DEC_SCALE = 6;
     public const MATCH_ACCOUNT_ID = '/^r[a-z0-9]{24,34}$/i';
     public const MATCH_ACCOUNT_SECRET = '/^s[a-z0-9]+$/i';
     public const KEY_TYPES = ['secp256k1', 'ed25519'];
+    public const LEDGER_TYPES = ["validated", "closed", "current"];
+    public const UINT32_MAX = 4294967295;
 }

@@ -15,9 +15,6 @@ declare(strict_types=1);
 namespace FurqanSiddiqui\Rippled;
 
 use Comely\DataTypes\Buffer\Base16;
-use Comely\Utils\OOP\ObjectMapper;
-use Comely\Utils\OOP\ObjectMapper\ObjectMapperInterface;
-use Comely\Utils\OOP\OOP;
 use FurqanSiddiqui\Rippled\Exception\APIQueryException;
 use FurqanSiddiqui\Rippled\Exception\ConnectionException;
 use FurqanSiddiqui\Rippled\Exception\ResponseParseException;
@@ -112,6 +109,15 @@ class RippledRPC
     }
 
     /**
+     * @param string $accountId
+     * @return Account
+     */
+    public function account(string $accountId): Account
+    {
+        return new Account($this, $accountId);
+    }
+
+    /**
      * @param Base16|null $seed
      * @param string $keyType
      * @return WalletPropose
@@ -163,32 +169,13 @@ class RippledRPC
     {
         $req = $this->request("wallet_propose", $params);
         $proposedWallet = new WalletPropose();
-        $this->mapResultToObject($req->result(), $proposedWallet);
+        $proposedWallet->mapResultToObject($req->result());
         $proposedWallet->masterSeedHex = new Base16($proposedWallet->masterSeedHex);
         $proposedWallet->publicKeyHex = new Base16($proposedWallet->publicKeyHex);
 
         return $proposedWallet;
     }
 
-    /**
-     * @param Result $res
-     * @param ObjectMapperInterface $obj
-     * @return ObjectMapperInterface
-     * @throws ResponseParseException
-     */
-    private function mapResultToObject(Result $res, ObjectMapperInterface $obj): ObjectMapperInterface
-    {
-        try {
-            $objectMapper = new ObjectMapper($obj);
-            return $objectMapper->mapCaseConversion(true)
-                ->map($res->array());
-        } catch (\Exception $e) {
-            throw new ResponseParseException(
-                sprintf('[%s] %s', OOP::baseClassName(get_class($e)), $e->getMessage()),
-                $e->getCode()
-            );
-        }
-    }
 
     /**
      * @param string $command

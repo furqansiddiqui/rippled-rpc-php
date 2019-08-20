@@ -14,7 +14,11 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Rippled\RPC;
 
+use Comely\Utils\OOP\ObjectMapper;
 use Comely\Utils\OOP\ObjectMapper\ObjectMapperInterface;
+use Comely\Utils\OOP\OOP;
+use FurqanSiddiqui\Rippled\Exception\ResponseParseException;
+use FurqanSiddiqui\Rippled\Server\Result;
 
 /**
  * Class AbstractResultModel
@@ -22,4 +26,22 @@ use Comely\Utils\OOP\ObjectMapper\ObjectMapperInterface;
  */
 abstract class AbstractResultModel implements ObjectMapperInterface
 {
+    /**
+     * @param Result $res
+     * @return ObjectMapperInterface
+     * @throws ResponseParseException
+     */
+    public function mapResultToObject(Result $res): ObjectMapperInterface
+    {
+        try {
+            $objectMapper = new ObjectMapper($this);
+            return $objectMapper->mapCaseConversion(true)
+                ->map($res->array());
+        } catch (\Exception $e) {
+            throw new ResponseParseException(
+                sprintf('[%s] %s', OOP::baseClassName(get_class($e)), $e->getMessage()),
+                $e->getCode()
+            );
+        }
+    }
 }
