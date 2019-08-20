@@ -21,6 +21,7 @@ use Comely\Utils\OOP\OOP;
 use FurqanSiddiqui\Rippled\Exception\APIQueryException;
 use FurqanSiddiqui\Rippled\Exception\ConnectionException;
 use FurqanSiddiqui\Rippled\Exception\ResponseParseException;
+use FurqanSiddiqui\Rippled\RPC\ServerInfo;
 use FurqanSiddiqui\Rippled\RPC\WalletPropose;
 use FurqanSiddiqui\Rippled\Server\APIQueryResult;
 use FurqanSiddiqui\Rippled\Server\Result;
@@ -99,6 +100,20 @@ class RippledRPC
         }
 
         return true;
+    }
+
+    /**
+     * @return ServerInfo
+     * @throws APIQueryException
+     * @throws ResponseParseException
+     */
+    public function serverInfo(): ServerInfo
+    {
+        $req = $this->request("server_info", ["server_info" => 1]);
+        $serverInfo = new ServerInfo();
+        $this->mapResultToObject($req->result(), $serverInfo);
+
+        return $serverInfo;
     }
 
     /**
