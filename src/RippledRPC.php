@@ -17,6 +17,7 @@ namespace FurqanSiddiqui\Rippled;
 use Comely\DataTypes\Buffer\Base16;
 use Comely\Utils\OOP\ObjectMapper;
 use Comely\Utils\OOP\ObjectMapper\ObjectMapperInterface;
+use Comely\Utils\OOP\OOP;
 use FurqanSiddiqui\Rippled\Exception\APIQueryException;
 use FurqanSiddiqui\Rippled\Exception\ConnectionException;
 use FurqanSiddiqui\Rippled\Exception\ResponseParseException;
@@ -140,7 +141,10 @@ class RippledRPC
             return $objectMapper->mapCaseConversion(true)
                 ->map($res->array());
         } catch (\Exception $e) {
-            throw new ResponseParseException(sprintf('[%s][%s] %s', get_class($e), $e->getCode(), $e->getMessage()));
+            throw new ResponseParseException(
+                sprintf('[%s] %s', OOP::baseClassName(get_class($e)), $e->getMessage()),
+                $e->getCode()
+            );
         }
     }
 

@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Rippled\RPC;
 
+use Comely\DataTypes\Buffer\Base16;
 use Comely\Utils\OOP\ObjectMapper;
 use Comely\Utils\Validator\Validator;
 
@@ -27,10 +28,15 @@ class WalletPropose extends AbstractResultModel
     public $accountId;
     /** @var string */
     public $keyType;
+    /** @var string */
     public $masterKey;
+    /** @var string */
     public $masterSeed;
+    /** @var string */
     public $masterSeedHex;
+    /** @var string */
     public $publicKey;
+    /** @var string */
     public $publicKeyHex;
 
     public function objectMapperProps(ObjectMapper $objectMapper): void
@@ -44,8 +50,16 @@ class WalletPropose extends AbstractResultModel
         });
 
         $objectMapper->prop("masterKey")->dataTypes("string");
-        $objectMapper->prop("masterSeed")->dataTypes("string");
-        $objectMapper->prop("masterSeedHex")->dataTypes("string");
+        $objectMapper->prop("masterSeed")->dataTypes("string")->validate(function ($value) {
+            return Validator::String($value)->match(\FurqanSiddiqui\Rippled\Validator::MATCH_ACCOUNT_SECRET)->len(8, 1024)->validate();
+        });
+
+        $objectMapper->prop("masterSeedHex")->dataTypes("string")->validate(function ($value) {
+            return Validator::String($value)->match('/^[a-f0-9]{2,}$/i')->validate();
+        });
+
+        $this->masterSeedHex = new Base16($this->masterSeedHex);
+
         $objectMapper->prop("publicKey")->dataTypes("string");
         $objectMapper->prop("publicKeyHex")->dataTypes("string");
     }
