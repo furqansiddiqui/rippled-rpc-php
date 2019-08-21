@@ -262,7 +262,7 @@ class RippledRPC
                     if ($errorMessage) {
                         throw new APIQueryException(
                             sprintf('API command "%s" status "error"; %s', $command, $errorMessage),
-                            APIQueryException::SIGNALS[$errorMessage] ?? null
+                            APIQueryException::SIGNALS[$errorMessage] ?? 0
                         );
                     }
 
