@@ -119,9 +119,26 @@ class RippledRPC
         return new Account($this, $accountId, $strict);
     }
 
+    /**
+     * @param Base16 $txId
+     * @return Transaction
+     * @throws APIQueryException
+     * @throws ResponseParseException
+     */
     public function transaction(Base16 $txId): Transaction
     {
+        if ($txId->binary()->size()->bits() !== 256) {
+            throw new \InvalidArgumentException('Transaction hash must be 256 bit');
+        }
 
+        $params = [
+            "transaction" => $txId->hexits(false),
+            "binary" => false
+        ];
+
+        $req = $this->request("tx", $params);
+        $txInfo = Transaction::ConstructPerType($req->result()->array(), true);
+        return $txInfo;
     }
 
     /**

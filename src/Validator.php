@@ -26,4 +26,20 @@ class Validator
     public const KEY_TYPES = ['secp256k1', 'ed25519'];
     public const LEDGER_TYPES = ["validated", "closed", "current"];
     public const UINT32_MAX = 4294967295;
+    public const TRANSACTION_TYPES = [
+        "Payment",
+        "OfferCreate",
+        "OfferCancel",
+        "TrustSet",
+        "AccountSet",
+        "SetRegularKey",
+        "SignerListSet",
+        "EscrowCreate",
+        "EscrowFinish",
+        "EscrowCancel",
+        "PaymentChannelCreate",
+        "PaymentChannelFund",
+        "PaymentChannelClaim",
+        "DepositPreauth",
+    ];
 }
