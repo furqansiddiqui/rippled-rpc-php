@@ -42,4 +42,18 @@ abstract class AbstractResultModel implements ObjectMapperInterface
             );
         }
     }
+
+    /**
+     * @param array $res
+     * @return array
+     */
+    public static function ResultArrayCaseConversion(array $res): array
+    {
+        $caseArr = [];
+        foreach ($res as $key => $value) {
+            $caseArr[OOP::camelCase($key)] = $value;
+        }
+
+        return $caseArr;
+    }
 }
