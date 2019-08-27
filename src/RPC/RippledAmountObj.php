@@ -47,5 +47,9 @@ class RippledAmountObj implements RippleAmountObjInterface
             $this->drops = $amount->value();
             $this->xrp = bcdiv($amount->value(), bcpow("10", strval($this->scale), 0), $this->scale);
         }
+
+        if (strpos($this->drops, ".")) {
+            $this->drops = explode(".", $this->drops)[0];
+        }
     }
 }
