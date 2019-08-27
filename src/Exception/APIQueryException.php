@@ -22,9 +22,12 @@ class APIQueryException extends RippledRPCException
 {
     public const ACCOUNT_NOT_FOUND = 0x2af8;
     public const TRANSACTION_NOT_FOUND = 0x2ee0;
+    public const ACCOUNT_NOT_UNLOCKED = 0x32c8;
+    public const TRANSACTION_NEED_MORE_FEE = 0x36b0;
 
     public const SIGNALS = [
         "actNotFound" => self::ACCOUNT_NOT_FOUND,
         "txnNotFound" => self::TRANSACTION_NOT_FOUND,
+        "highFee" => self::TRANSACTION_NEED_MORE_FEE
     ];
 }

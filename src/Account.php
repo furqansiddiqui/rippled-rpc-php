@@ -14,8 +14,11 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\Rippled;
 
+use Comely\DataTypes\Buffer\Base16;
+use FurqanSiddiqui\Rippled\Exception\APIQueryException;
 use FurqanSiddiqui\Rippled\RPC\AccountInfo;
 use FurqanSiddiqui\Rippled\RPC\RippledAmountObj;
+use FurqanSiddiqui\Rippled\RPC\RippledIssuedTokenObj;
 
 /**
  * Class Account
@@ -23,12 +26,21 @@ use FurqanSiddiqui\Rippled\RPC\RippledAmountObj;
  */
 class Account
 {
+    public const UNLOCK_PASSPHRASE = 0x0a;
+    public const UNLOCK_SEED_HEX = 0x0b;
+
     /** @var RippledRPC */
     private $rippledRPC;
     /** @var string */
     private $accountId;
     /** @var bool */
     private $strict;
+    /** @var null|int */
+    private $unlock;
+    /** @var null|string|Base16 */
+    private $unlockValue;
+    /** @var null|string */
+    private $keyType;
 
     /**
      * Account constructor.
@@ -95,5 +107,130 @@ class Account
         $accInfoObj->balance = new RippledAmountObj($balance);
 
         return $accInfoObj;
+    }
+
+    /**
+     * @param Base16 $seed
+     * @param string $keyType
+     * @return Account
+     */
+    public function unlockWithSeed(Base16 $seed, string $keyType = "secp256k1"): self
+    {
+        if (!in_array($keyType, Validator::KEY_TYPES)) {
+            throw new \OutOfBoundsException('Invalid key type');
+        }
+
+        $this->unlock = self::UNLOCK_SEED_HEX;
+        $this->unlockValue = $seed;
+        $this->keyType = $keyType;
+        return $this;
+    }
+
+    /**
+     * @param string $passphrase
+     * @param string $keyType
+     * @return Account
+     */
+    public function unlockWithPassphrase(string $passphrase, string $keyType = "secp256k1"): self
+    {
+        if (!in_array($keyType, Validator::KEY_TYPES)) {
+            throw new \OutOfBoundsException('Invalid key type');
+        }
+
+        $this->unlock = self::UNLOCK_PASSPHRASE;
+        $this->unlockValue = $passphrase;
+        $this->keyType = $keyType;
+        return $this;
+    }
+
+    /**
+     * @param string $dest
+     * @param RippledIssuedTokenObj $amount
+     * @param int|null $destTag
+     * @param int|null $sourceTag
+     * @param int $feeMulMax
+     * @param bool $offline
+     * @return Base16
+     * @throws APIQueryException
+     */
+    public function payment(string $dest, RippledIssuedTokenObj $amount, ?int $destTag = null, ?int $sourceTag = null, int $feeMulMax = 100, bool $offline = false): Base16
+    {
+        if (!preg_match(Validator::MATCH_ACCOUNT_ID, $dest)) {
+            throw new APIQueryException('Invalid destination XRP address');
+        }
+
+        $params = [
+            "offline" => $offline,
+            "fee_mult_max" => $feeMulMax
+        ];
+
+        switch ($this->unlock) {
+            case self::UNLOCK_PASSPHRASE:
+                $params["passphrase"] = $this->unlockValue;
+                $params["key_type"] = $this->keyType;
+                break;
+            case self::UNLOCK_SEED_HEX:
+                $params["seed_hex"] = $this->unlockValue->hexits(false);
+                $params["key_type"] = $this->keyType;
+                break;
+            default:
+                throw new APIQueryException('Account passphrase or seed value must be set', APIQueryException::ACCOUNT_NOT_UNLOCKED);
+        }
+
+        $tx = [];
+        $tx["TransactionType"] = "Payment";
+        $tx["Account"] = $this->accountId;
+
+        if ($amount instanceof RippledAmountObj) {
+            $tx["Amount"] = $amount->drops;
+        } elseif ($amount instanceof RippledIssuedTokenObj) {
+            $tx["Amount"] = $amount->array();
+        }
+
+        $tx["Destination"] = $dest;
+        if ($destTag) {
+            $tx["DestinationTag"] = $destTag;
+        }
+
+        if ($sourceTag) {
+            $tx["SourceTag"] = $sourceTag;
+        }
+
+        $params["tx_json"] = $tx;
+
+        // Sign Transaction
+        try {
+            $sign = $this->rippledRPC->request("sign", $params);
+        } catch (APIQueryException $e) {
+            if ($e->getCode() === APIQueryException::TRANSACTION_NEED_MORE_FEE) {
+                throw new APIQueryException('Transaction requires higher fee amount as per current network load', $e->getCode());
+            }
+
+            throw $e;
+        }
+
+        $blob = $sign->result()->get("tx_blob");
+        if (!$blob) {
+            throw new APIQueryException('Signed transaction blob not returned in response');
+        }
+
+        $submit = $this->rippledRPC->request("submit", ["tx_blob" => $blob]);
+        $result = $submit->result()->array();
+        $engineResult = $result["engine_result"] ?? null;
+        if ($engineResult !== "tesSUCCESS") {
+            throw new APIQueryException(sprintf('Transaction submit fail with error code "%s"', $engineResult));
+        }
+
+        $txJSON = $result["tx_json"] ?? null;
+        if (!is_array($txJSON)) {
+            throw new APIQueryException('Transaction submit did not return txJSON block; Warning transaction MAY HAVE ALREADY been sent!');
+        }
+
+        $txHash = $txJSON["hash"] ?? null;
+        if (!is_string($txHash) || !preg_match('/^[a-f0-9]{64}$/i', $txHash)) {
+            throw new APIQueryException('Transaction submit did not return hash; Warning transaction MAY HAVE ALREADY been sent!');
+        }
+
+        return new Base16($txHash);
     }
 }

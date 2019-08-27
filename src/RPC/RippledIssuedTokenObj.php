@@ -53,4 +53,16 @@ class RippledIssuedTokenObj implements RippleAmountObjInterface
             }
         }
     }
+
+    /**
+     * @return array
+     */
+    public function array(): array
+    {
+        return [
+            "currency" => $this->currency,
+            "value" => $this->value,
+            "issuer" => $this->issuer
+        ];
+    }
 }
