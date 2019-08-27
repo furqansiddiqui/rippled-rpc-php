@@ -36,7 +36,7 @@ class RippledIssuedTokenObj
     public function __construct(array $amount)
     {
         if (array_key_exists("currency", $amount)) {
-            if (preg_match('/^[a-z0-9\s\_\!\#\@\$\(\)\[\]\%\&\^]{1,16}$/', $amount["currency"])) {
+            if (preg_match('/^[a-z0-9\s\_\!\#\@\$\(\)\[\]\%\&\^]{1,16}$/i', $amount["currency"])) {
                 $this->currency = $amount["currency"];
             }
         }
