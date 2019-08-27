@@ -90,6 +90,12 @@ class Transaction extends AbstractResultModel
         $fee = $obj->fee;
         $obj->fee = new RippledAmountObj($fee);
 
+        if ($obj instanceof PaymentTransaction) {
+            /** @var string $amount */
+            $amount = $obj->amount;
+            $obj->amount = new RippledAmountObj($amount);
+        }
+
         return $obj;
     }
 
@@ -112,6 +118,26 @@ class Transaction extends AbstractResultModel
         });
 
         $objectMapper->prop("flags")->dataTypes("integer");
+
+        $objectMapper->prop("accountTxId")->dataTypes("string")->nullable()->validate(function ($value) {
+            return Validator::String($value)->match('/^[a-f0-9]{64}$/i')->validate();
+        });
+
+        $objectMapper->prop("lastLedgerSequence")->dataTypes("integer")->nullable()->validate(function ($value) {
+            return Validator::Integer($value)->range(0, \FurqanSiddiqui\Rippled\Validator::UINT32_MAX)->validate();
+        });
+
+        $objectMapper->prop("memos")->nullable()->dataTypes("array");
+
+        $objectMapper->prop("signers")->nullable()->dataTypes("array");
+
+        $objectMapper->prop("sourceTag")->nullable()->dataTypes("integer")->validate(function ($value) {
+            return Validator::Integer($value)->range(0, \FurqanSiddiqui\Rippled\Validator::UINT32_MAX)->validate();
+        });
+
+        $objectMapper->prop("signingPubKey")->dataTypes("string");
+
+        $objectMapper->prop("txnSignature")->dataTypes("string");
 
         $objectMapper->prop("ledgerIndex")->nullable()->dataTypes("integer")->validate(function ($value) {
             return Validator::Integer($value)->range(0, \FurqanSiddiqui\Rippled\Validator::UINT32_MAX)->validate();
