@@ -54,6 +54,8 @@ class Transaction extends AbstractResultModel
     public $ledgerIndex;
     /** @var null|array */
     public $meta;
+    /** @var null|bool */
+    public $validated;
 
     /**
      * @param array $res

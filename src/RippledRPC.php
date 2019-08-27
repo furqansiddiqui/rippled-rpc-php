@@ -143,6 +143,10 @@ class RippledRPC
             $txInfo->meta = $txInfoArray["meta"];
         }
 
+        if (array_key_exists("validated", $txInfoArray) && is_bool($txInfoArray["validated"])) {
+            $txInfo->validated = $txInfoArray["validated"];
+        }
+
         return $txInfo;
     }
 
