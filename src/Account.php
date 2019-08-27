@@ -17,6 +17,7 @@ namespace FurqanSiddiqui\Rippled;
 use Comely\DataTypes\Buffer\Base16;
 use FurqanSiddiqui\Rippled\Exception\APIQueryException;
 use FurqanSiddiqui\Rippled\RPC\AccountInfo;
+use FurqanSiddiqui\Rippled\RPC\RippleAmountObjInterface;
 use FurqanSiddiqui\Rippled\RPC\RippledAmountObj;
 use FurqanSiddiqui\Rippled\RPC\RippledIssuedTokenObj;
 
@@ -145,7 +146,7 @@ class Account
 
     /**
      * @param string $dest
-     * @param RippledIssuedTokenObj $amount
+     * @param RippleAmountObjInterface $amount
      * @param int|null $destTag
      * @param int|null $sourceTag
      * @param int $feeMulMax
@@ -153,7 +154,7 @@ class Account
      * @return Base16
      * @throws APIQueryException
      */
-    public function payment(string $dest, RippledIssuedTokenObj $amount, ?int $destTag = null, ?int $sourceTag = null, int $feeMulMax = 100, bool $offline = false): Base16
+    public function payment(string $dest, RippleAmountObjInterface $amount, ?int $destTag = null, ?int $sourceTag = null, int $feeMulMax = 100, bool $offline = false): Base16
     {
         if (!preg_match(Validator::MATCH_ACCOUNT_ID, $dest)) {
             throw new APIQueryException('Invalid destination XRP address');
