@@ -231,6 +231,6 @@ class Account
             throw new APIQueryException('Transaction submit did not return hash; Warning transaction MAY HAVE ALREADY been sent!');
         }
 
-        return new Base16($txHash);
+        return (new Base16($txHash))->readOnly(true);
     }
 }
