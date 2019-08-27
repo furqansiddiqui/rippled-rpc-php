@@ -17,6 +17,7 @@ namespace FurqanSiddiqui\Rippled\RPC\Transaction;
 use Comely\Utils\OOP\ObjectMapper;
 use Comely\Utils\Validator\Validator;
 use FurqanSiddiqui\Rippled\RPC\RippledAmountObj;
+use FurqanSiddiqui\Rippled\RPC\RippledIssuedTokenObj;
 use FurqanSiddiqui\Rippled\RPC\Transaction;
 
 /**
@@ -25,7 +26,7 @@ use FurqanSiddiqui\Rippled\RPC\Transaction;
  */
 class PaymentTransaction extends Transaction
 {
-    /** @var RippledAmountObj */
+    /** @var RippledAmountObj|RippledIssuedTokenObj */
     public $amount;
     /** @var string */
     public $destination;

@@ -20,7 +20,7 @@ use FurqanSiddiqui\Rippled\Validator;
  * Class RippledIssuedTokenObj
  * @package FurqanSiddiqui\Rippled\RPC
  */
-class RippledIssuedTokenObj
+class RippledIssuedTokenObj implements RippleAmountObjInterface
 {
     /** @var string */
     public $currency;

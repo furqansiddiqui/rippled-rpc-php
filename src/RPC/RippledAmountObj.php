@@ -21,7 +21,7 @@ use FurqanSiddiqui\Rippled\Validator;
  * Class RippledAmountObj
  * @package FurqanSiddiqui\Rippled\RPC
  */
-class RippledAmountObj
+class RippledAmountObj implements RippleAmountObjInterface
 {
     /** @var string */
     public $drops;
