@@ -89,11 +89,12 @@ class Transaction extends AbstractResultModel
         /** @var string $fee */
         $fee = $obj->fee;
         $obj->fee = new RippledAmountObj($fee);
-
         if ($obj instanceof PaymentTransaction) {
-            /** @var string $amount */
-            $amount = $obj->amount;
-            $obj->amount = new RippledAmountObj($amount);
+            if (is_string($obj->amount)) {
+                $obj->amount = new RippledAmountObj($obj->amount);
+            } elseif (is_array($obj->amount)) {
+                $obj->amount = new RippledIssuedTokenObj($obj->amount);
+            }
         }
 
         return $obj;

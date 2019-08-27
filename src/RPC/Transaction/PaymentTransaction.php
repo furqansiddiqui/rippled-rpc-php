@@ -47,9 +47,7 @@ class PaymentTransaction extends Transaction
     {
         parent::objectMapperProps($objectMapper);
 
-        $objectMapper->prop("amount")->dataTypes("string")->validate(function ($value) {
-            return Validator::Numeric($value)->scale(0)->validate()->value();
-        });
+        $objectMapper->prop("amount")->dataTypes("string", "array");
 
         $objectMapper->prop("destination")->dataTypes("string");
 
