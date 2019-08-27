@@ -104,6 +104,10 @@ class Transaction extends AbstractResultModel
      */
     public function objectMapperProps(ObjectMapper $objectMapper): void
     {
+        $objectMapper->prop("hash")->dataTypes("string")->nullable()->validate(function ($value) {
+            return Validator::String($value)->match('/^[a-f0-9]{64}$/i')->validate();
+        });
+
         $objectMapper->prop("account")->dataTypes("string");
         $objectMapper->prop("transactionType")->dataTypes("string")->validate(function ($type) {
             return Validator::String($type)->inArray(\FurqanSiddiqui\Rippled\Validator::TRANSACTION_TYPES)->validate();

@@ -137,7 +137,12 @@ class RippledRPC
         ];
 
         $req = $this->request("tx", $params);
-        $txInfo = Transaction::ConstructPerType($req->result()->array(), true);
+        $txInfoArray = $req->result()->array();
+        $txInfo = Transaction::ConstructPerType($txInfoArray, true);
+        if (array_key_exists("meta", $txInfoArray) && is_array($txInfoArray["meta"])) {
+            $txInfo->meta = $txInfoArray["meta"];
+        }
+
         return $txInfo;
     }
 
